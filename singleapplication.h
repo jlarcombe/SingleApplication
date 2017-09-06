@@ -29,8 +29,13 @@
 #ifndef QAPPLICATION_CLASS
   #define QAPPLICATION_CLASS QCoreApplication
 #endif
+#ifndef QAPPLICATION_MODULE
+  #define QAPPLICATION_MODULE QtCore
+#endif
 
-#include QT_STRINGIFY(QAPPLICATION_CLASS)
+#define BRACKET(x) <x>
+#define MAKE_INCLUDE(module, name) BRACKET(module/name)
+#include MAKE_INCLUDE(QAPPLICATION_MODULE, QAPPLICATION_CLASS)
 
 class SingleApplicationPrivate;
 

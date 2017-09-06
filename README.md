@@ -12,8 +12,9 @@ Usage
 
 The `SingleApplication` class inherits from whatever `Q[Core|Gui]Application`
 class you specify via the `QAPPLICATION_CLASS` macro (`QCoreApplication` is the
-default). Further usage is similar to the use of the `Q[Core|Gui]Application`
-classes.
+default). Also specify the `QAPPLICATION_MODULE` macro to allow the correct
+header to be included (`QtCore` is the default). Further usage is similar to
+the use of the `Q[Core|Gui]Application` classes.
 
 The library sets up a `QLocalServer` and a `QSharedMemory` block. The first
 instance of your Application is your Primary Instance. It would check if the
@@ -57,6 +58,7 @@ is not `QCoreApplication`.
 ```qmake
 include(singleapplication/singleapplication.pri)
 DEFINES += QAPPLICATION_CLASS=QApplication
+DEFINES += QAPPLICATION_MODULE=QtWidgets
 ```
 
 The `Instance Started` signal
