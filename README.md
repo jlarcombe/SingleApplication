@@ -243,11 +243,11 @@ notify the main process that a new instance had been spawned and thus invoke the
 
 To handle an issue on `*nix` systems, where the operating system owns the shared
 memory block and if the program crashes the memory remains untouched, the
-library binds to the following signals and closes the program with
-`error code = 128 + signum` where signum is the number representation of the
-signal listed below. Handling the signal is required in order to safely delete
-the `QSharedMemory` block. Each of these signals are potentially lethal and will
-results in process termination.
+library binds to the following signals, safely deleting the `QSharedMemory` block
+in the handler, then reinstalling the default handler and re-raising the signal.
+Each of these signals are potentially lethal and will result in process
+termination, but calling up to the default handler means that core dumps or crash
+logs will be created correctly on platforms that support this.
 
 *   `SIGHUP` - `1`, Hangup.
 *   `SIGINT` - `2`, Terminal interrupt signal

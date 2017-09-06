@@ -37,6 +37,10 @@
 #include <QtNetwork/QLocalSocket>
 #include "singleapplication.h"
 
+#ifdef Q_OS_UNIX
+    #include <signal.h>
+#endif
+
 struct InstancesInfo {
     bool primary;
     quint32 secondary;
@@ -58,6 +62,9 @@ public:
 #ifdef Q_OS_UNIX
     void crashHandler();
     static void terminate( int signum );
+    typedef void (*SignalHandler)(int);
+    static const int MAX_SIGNAL_NUM_HANDLED = SIGXFSZ;
+    static SignalHandler defaultSignalHandlers[MAX_SIGNAL_NUM_HANDLED + 1];
 #endif
 
     QSharedMemory *memory;

@@ -222,27 +222,37 @@ void SingleApplicationPrivate::connectToPrimary( int msecs, char connectionType 
     {
         // Handle any further termination signals to ensure the
         // QSharedMemory block is deleted even if the process crashes
-        signal( SIGHUP,  SingleApplicationPrivate::terminate ); // 1
-        signal( SIGINT,  SingleApplicationPrivate::terminate ); // 2
-        signal( SIGQUIT, SingleApplicationPrivate::terminate ); // 3
-        signal( SIGILL,  SingleApplicationPrivate::terminate ); // 4
-        signal( SIGABRT, SingleApplicationPrivate::terminate ); // 6
-        signal( SIGFPE,  SingleApplicationPrivate::terminate ); // 8
-        signal( SIGBUS,  SingleApplicationPrivate::terminate ); // 10
-        signal( SIGSEGV, SingleApplicationPrivate::terminate ); // 11
-        signal( SIGSYS,  SingleApplicationPrivate::terminate ); // 12
-        signal( SIGPIPE, SingleApplicationPrivate::terminate ); // 13
-        signal( SIGALRM, SingleApplicationPrivate::terminate ); // 14
-        signal( SIGTERM, SingleApplicationPrivate::terminate ); // 15
-        signal( SIGXCPU, SingleApplicationPrivate::terminate ); // 24
-        signal( SIGXFSZ, SingleApplicationPrivate::terminate ); // 25
+        static bool installedSignalHandlers = false;
+        if (!installedSignalHandlers)
+        {
+            defaultSignalHandlers[SIGHUP]  = signal( SIGHUP,  SingleApplicationPrivate::terminate ); // 1
+            defaultSignalHandlers[SIGINT]  = signal( SIGINT,  SingleApplicationPrivate::terminate ); // 2
+            defaultSignalHandlers[SIGQUIT] = signal( SIGQUIT, SingleApplicationPrivate::terminate ); // 3
+            defaultSignalHandlers[SIGILL]  = signal( SIGILL,  SingleApplicationPrivate::terminate ); // 4
+            defaultSignalHandlers[SIGABRT] = signal( SIGABRT, SingleApplicationPrivate::terminate ); // 6
+            defaultSignalHandlers[SIGFPE]  = signal( SIGFPE,  SingleApplicationPrivate::terminate ); // 8
+            defaultSignalHandlers[SIGBUS]  = signal( SIGBUS,  SingleApplicationPrivate::terminate ); // 10
+            defaultSignalHandlers[SIGSEGV] = signal( SIGSEGV, SingleApplicationPrivate::terminate ); // 11
+            defaultSignalHandlers[SIGSYS]  = signal( SIGSYS,  SingleApplicationPrivate::terminate ); // 12
+            defaultSignalHandlers[SIGPIPE] = signal( SIGPIPE, SingleApplicationPrivate::terminate ); // 13
+            defaultSignalHandlers[SIGALRM] = signal( SIGALRM, SingleApplicationPrivate::terminate ); // 14
+            defaultSignalHandlers[SIGTERM] = signal( SIGTERM, SingleApplicationPrivate::terminate ); // 15
+            defaultSignalHandlers[SIGXCPU] = signal( SIGXCPU, SingleApplicationPrivate::terminate ); // 24
+            defaultSignalHandlers[SIGXFSZ] = signal( SIGXFSZ, SingleApplicationPrivate::terminate ); // 25
+            // be sure to increase MAX_SIGNAL_NUM_HANDLED if any more signals are added here
+            
+            installedSignalHandlers = true;
+        }
     }
 
     void SingleApplicationPrivate::terminate( int signum )
     {
         delete ((SingleApplication*)QCoreApplication::instance())->d_ptr;
-        ::exit( 128 + signum );
+        signal(signum, defaultSignalHandlers[signum]);
+        raise(signum);
     }
+
+    SingleApplicationPrivate::SignalHandler SingleApplicationPrivate::defaultSignalHandlers[SingleApplicationPrivate::MAX_SIGNAL_NUM_HANDLED + 1] = {0};
 #endif
 
 /**
