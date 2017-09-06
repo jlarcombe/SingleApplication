@@ -136,7 +136,7 @@ void SingleApplicationPrivate::startPrimary( bool resetMemory )
     // Successful creation means that no main process exists
     // So we start a QLocalServer to listen for connections
     QLocalServer::removeServer( blockServerName );
-    server = new QLocalServer();
+    server = new QLocalServer(this);
 
     // Restrict access to the socket according to the
     // SingleApplication::Mode::User flag on User level or no restrictions
@@ -184,7 +184,7 @@ void SingleApplicationPrivate::connectToPrimary( int msecs, char connectionType 
     // Connect to the Local Server of the Primary Instance if not already
     // connected.
     if( socket == nullptr ) {
-        socket = new QLocalSocket();
+        socket = new QLocalSocket(this);
     }
 
     // If already connected - we are done;
